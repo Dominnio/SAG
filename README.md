@@ -37,5 +37,5 @@ Z dokumentu google, z listy TO_DO zrealizowałem 2 pierwsze punkty. Teraz powinn
 do zrobienia od punktu 3.
 
 
-Dokument google z listą TO_DO : https://docs.google.com/document/d/1J1dj5VJ-9L6mhyIOI25qfgbYt2debQjXubj3QeXhrQ0/edit?fbclid=IwAR00acej3RGMEuV4IljcbPhuhkWYFhkz9bt_0NCmRg1dXqEsuvfvbCxQNo8
+Dokument google z listą TO_DO : https://docs.google.com/document/d/1J1dj5VJ-9L6mhyIOI25qfgbYt2debQjXubj3QeXhrQ0/edit?fbclid=IwAR00acej3RGMEuV4IljcbPhuhkWYFhkz9bt_0NCmRg1dXqEsuvfvbCxQNo8  
 Polecam link do nauki: https://spade-mas.readthedocs.io/en/latest/usage.html

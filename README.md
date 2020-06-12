@@ -39,4 +39,6 @@ do zrobienia od punktu 3.
 
 Dokument google z listą TO_DO : https://docs.google.com/document/d/1J1dj5VJ-9L6mhyIOI25qfgbYt2debQjXubj3QeXhrQ0/edit?fbclid=IwAR00acej3RGMEuV4IljcbPhuhkWYFhkz9bt_0NCmRg1dXqEsuvfvbCxQNo8  
 
+Dokument LATEX z raportem końcowym do zedytowania(jako template dałem jakiś swój stary raport): https://www.overleaf.com/7617868931cvgvmcyqsdsc  
+
 Polecam link do nauki: https://spade-mas.readthedocs.io/en/latest/usage.html

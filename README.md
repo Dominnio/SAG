@@ -1,7 +1,7 @@
 # SAG
 Systemy agentowe, projekt zaliczeniowy
 
-29-05-2020
+12-06-2020
 
 Projekt testowałem używajac:
 - Windows 10,
@@ -11,7 +11,7 @@ Projekt testowałem używajac:
 - keras 2.2.5,
 - spade 3.1.4
 
-W pliku agent_config.py są dane poszczególnych agentów. Należy pozmieniać ścieżki do danych trenujących.
+W pliku agent_config.py są dane poszczególnych agentów. 
 Argumenty:  
 	'steps_per_epoch': '1',  
     'epochs': '1',  
@@ -22,19 +22,19 @@ na czas obliczeń. Klasyfikator zaczyna poprawnie klasyfikować przy ustawieniac
     'epochs': '25',  
     'validation_steps': '2000'  
 
-W pliku cnn.py znajduje się już gotowy klasyfikator.  
-W pliku classifying_agent.py znajdudje się wstępnie przygotowany model agenta.  
+W pliku cnn.py znajduje się już gotowy klasyfikator.   
+W pliku classifying_agent.py znajdudje się wstępnie przygotowany model agenta.   
+W pliku agent_utilities.py znajdują się kody odpowiedzialne za komunikację.  
+W pliku help_functions.py znajdują się funkcje pomocnicze.  
 
-**JAK działa classifying_agent.py?**
-Zaimplementowałem 2 zachowania: 1 cykliczne to skrzynka pocztowa agenta dowodzącego - aktywowana jest
-przez wysłanie do siebie maila przez agenta który został agentem dowodzącym. Po aktywacji odpowiada wszystkim
-agentom kto dowodzi. Jak raz skrzynka zostanie aktywowwana to nie da siejej wyłaczyć - chyba że agent dowodzący zginie.  
+W pliku classifying_agent.py umieściłem w różnych miejscach znaczki #### TO_DO #### - w tych miejscach można program  
+rozwijać. Starałem wypisać tam wszystko co przychodzi mi do głowy, a co trzeba zrobić. Warto odnosić się  
+też do dokumentu google.
 
-2 to maszyna stanów - powoli realizuję projekt maszyny stanów ze zdjęcia które wysłałem. Jak agent dowodzi idzie do S1.
-Jak nie, to idzie do S2.
 
-Z dokumentu google, z listy TO_DO zrealizowałem 2 pierwsze punkty. Teraz powinno polecieć już łatwiej -
-do zrobienia od punktu 3.
+Program działa tak:
+Agenci się inicjują, i wskakują do odpowiednich stanów: stan 1 jest dla agenta dowodzącego, stan 2 dla robotników.  
+Więcej dowiecie się z pliku classifying_agent.py.
 
 
 Dokument google z listą TO_DO : https://docs.google.com/document/d/1J1dj5VJ-9L6mhyIOI25qfgbYt2debQjXubj3QeXhrQ0/edit?fbclid=IwAR00acej3RGMEuV4IljcbPhuhkWYFhkz9bt_0NCmRg1dXqEsuvfvbCxQNo8  

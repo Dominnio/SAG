@@ -63,3 +63,26 @@ test_images = {
     'horse1': os.path.join('..', 'datasets', 'single_prediction', 'horse.1.jpeg'),
     'horse2': os.path.join('..', 'datasets', 'single_prediction', 'horse.2.jpeg')
 }
+
+
+# Templates
+# To Commander Key, Values
+CONTROL = "control"
+TO_CMB = "to_cmb"
+TO_FSM = "to_fsm"
+# Control messages
+WHO_IS_IN_COMMAND = "Who is in command?"
+WHO_IS_IN_COMMAND_RESPONSE = "[WIICR]"
+MULTIPLE_COMMANDERS = "Are there multiple commanders?"
+AM_I_THE_COMMANDER = "Am I the commander?"
+NOT_A_COMMANDER = "Not a commander."
+
+# Voting messages
+COMMANDER_VOTING = "[CV]"
+
+STATE_ZERO = "STATE_ZERO"
+STATE_ONE = "STATE_ONE"
+STATE_TWO = "STATE_TWO"
+STATE_THREE = "STATE_THREE"
+
+# Message codes

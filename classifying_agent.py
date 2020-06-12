@@ -3,29 +3,13 @@ from spade import agent
 from spade.behaviour import CyclicBehaviour
 from spade.behaviour import FSMBehaviour, State
 from spade.behaviour import OneShotBehaviour
-from spade.message import Message
 from spade.template import Template
 import time
 import asyncio
-import agent_config
+import agent_config as ac
 import cnn
-
-# Templates
-# To Commander Key, Values
-CONTROL = "control"
-TO_CMB = "to_cmb"
-TO_FSM = "to_fsm"
-# Control messages
-WHO_IS_IN_COMMAND = "Who is in command?"
-WHO_IS_IN_COMMAND_RESPONSE = "[WIICR]"
-
-STATE_ZERO = "STATE_ZERO"
-STATE_ONE = "STATE_ONE"
-STATE_TWO = "STATE_TWO"
-STATE_THREE = "STATE_THREE"
-
-
-# Message codes
+import help_functions as hf
+import agent_utilities as au
 
 
 ### Finite State Machine and States
@@ -35,116 +19,125 @@ class FSMBehav(FSMBehaviour):
         print("Agent {} starting".format(self.agent.jid))
 
 
-
 class StateZero(State):
     async def run(self):
+        ##### TO_DO #####
+        # Tutaj należy przeprowadzić trenowanie agenta(lub ewentualne pobranie gotowego wstępnie wytrenowanego modelu
+        # klasyfikatora) - czyli odpalenie pliku cnn.py . Gotowy model będzie używany w stanie 2 i 1, więc należy
+        # przemyśleć jak go tam udostępnić.
+
+        # Co do pobierania gotowego modelu klasyfikatora - narazie olać, jak starczy czasu to zrobi się to pod koniec.
+
         print("Agent {} in state 0".format(self.agent.jid))
-        i = 3  # Ask all agents who is in command 3 times
-        print("Agent {} asking for commander {} time".format(self.agent.jid, i))
-        promotion = True
-        while i > 0:
-            i -= 1
-            for k, v in agent_config.agents_dict.items():
-                print(k)
-                print(v['jid'])
-                if str(v['jid']) != str(self.agent.jid):
-                    msg_to_send = Message(to=str(v['jid']))
-                    msg_to_send.set_metadata(CONTROL, TO_CMB)
-                    msg_to_send.body = WHO_IS_IN_COMMAND
-                    print("Agent {} , message to {} has been sent.".format(self.agent.jid, v['jid']))
-                    await self.send(msg_to_send)
-
-                    msg = await self.receive(timeout=1)  # wait for response 1 sec
-                    if msg and msg.body[:len(WHO_IS_IN_COMMAND_RESPONSE)] == WHO_IS_IN_COMMAND_RESPONSE:
-                        print("Agent {} , got message from commander {}".format(self.agent.jid, v['jid']))
-                        promotion = False
-                        break
-            if promotion == False:
-                break
-        if promotion == True:
-            msg_to_send = Message(to=str(self.agent.jid))
-            msg_to_send.set_metadata(CONTROL, TO_CMB)
-            msg_to_send.body = "Taking the command."
-            print("Agent {} , sending promotion note to himself.".format(self.agent.jid))
-            await self.send(msg_to_send)
-
-            self.set_next_state(STATE_ONE)
-        elif promotion == False:
-            self.set_next_state(STATE_TWO)
+        await au.allocate_new_agent(self)
 
 
 class StateOne(State):
     async def run(self):
         print("Agent {} is in state 1.".format(self.agent.jid))
+        await au.prevent_multiple_commanders(self, 1)
 
+        ##### TO_DO #####
+        # Tutaj powinna byc zakodowana interakcja z uzytkownikiem, czyli pobieranie zdjęcia, rozsyłanie
+        # jej do agentów i wyświetlanie wyników.I ewentualnie jakies inne
+        # jak starczy czasu. Ważne jest też zrobienie funkcji monitorującej stan życia pozostałych agentów.
+        # Napewno przyda się taki alive_check przed wysłaniem zdjęcia do agentów lub monitorowania ich stanu oraz liczby
+        # Wydaje mi się że nie potrzeba do zrealizowania powyższych funkcji jakiś dodatkowych stanów.
+        # Ogólnie idea jest taka, ze jak agent zostanie dowodzącym i nie bedzie innych dowodzących agentów, to się
+        # solidnie zagnieżdża w stanie 1. Można przyjąć że jest tylko jeden agent dowodzacy który mozę udostępnić
+        # interfejs. Tylko zabicie agenta powinno móc go z tego stanu usunąć.
+
+        # Oczywiście konieczne jest również zrobienie funkcji która pobiera wyniki klasyfikacji od agentów.
+        # Należy pamiętać, że agent dowodzący również klasyfikuje i w tym stanie również powinien móc dać wynik
+        # klasyfikacji
+
+        # Kolejna rzecz to umożliwienie użytkownikowi pobranie ostatniej wartości klasyfikacji od każdego z agentów
+        # (na wypadek niefortunnej śmierci agenta dowodzącego)
+
+        # W skrócie w tym stanie należy zrealizować interfejs do komunikacji z użytkownikiem
+
+        # Należy przetestować co sie stanie jak zabijemy agenta dowodzącego będącego w trakcie interakcji
+        # z użytkownikiem. Domyślnie powinna powstać funkcja is_commander_alive uruchamiana w stanie 2, sprawdzająca
+        # co np. 3 sec czy commander żyje. Narzie jej nie ma, ale śmierć agenta powinna odblokowywać interfejs
+        # dla nowego agenta dowodzacego
 
 class StateTwo(State):
     async def run(self):
         print("Agent {} is in state 2.".format(self.agent.jid))
 
+        ##### TO_DO #####
+        # Tutaj powinna odbywać się klasyfikacja, czyli agent powinien oczekiwać na wiadomość albo o przeprowadzeniu
+        # głosowania na nowego lidera, albo na wiadomość z obrazkiem(lub linkiem do obrazka), klasyfikować go i odesłać.
+        # wynik klasyfikacji powinien być zapisany na wypadek utraty informacji (śmierć agenta dowodzącego) i możliwa
+        # do ponownego wysłania
+
+        # Będzie tutaj również funkcja sprawdzajaca co 3 sec, czy agent dowodzący zyje i przeprowadzajaca głosowanie
+        # na wypadek śmierci.
+
+        # najprawdopodobniej sam się tym zajmę, bo tutaj będzie najwięcej komunikacji między agentami.
+
 
 class ClassifyingAgent(agent.Agent):
-
     class CommanderMessageBox(CyclicBehaviour):
-        async def on_start(self):
-            print("Agent {} box for commander mail is ready.".format(self.agent.jid))
+        # async def on_start(self):
+        #     # print("Agent {} box for commander mail is ready.".format(self.agent.jid))
         async def run(self):
-            msg = await self.receive(timeout=10)
-            if msg and msg.sender == self.agent.jid:
-                print("Agent {} takes command.".format(self.agent.jid))
-                while True:
-                    msg = await self.receive(timeout=10)
-                    if msg and msg.body == WHO_IS_IN_COMMAND:
-                        msg_to_send = Message(to=str(msg.sender))
-                        msg_to_send.set_metadata(CONTROL, TO_FSM)
-                        msg_to_send.body = WHO_IS_IN_COMMAND_RESPONSE + "Agent {} is in command.".format(self.agent.jid)
-                        await self.send(msg_to_send)
+            await au.new_commander_initialization(self)
 
     async def setup(self):
         print("Agent {} starting. Purpose : recognize {}.".format(self.jid, self._values['agent_data']['purpose']))
         cmb_template = Template()
-        cmb_template.set_metadata(CONTROL, TO_CMB)
-        b = self.CommanderMessageBox()
-        self.add_behaviour(b, cmb_template)
+        cmb_template.set_metadata(ac.CONTROL, ac.TO_CMB)
 
-        ############
         fsm_template = Template()
-        fsm_template.set_metadata(CONTROL, TO_FSM)
-        fsm = FSMBehav()
-        fsm.add_state(name=STATE_ZERO, state=StateZero(), initial=True)
-        fsm.add_state(name=STATE_ONE, state=StateOne())
-        fsm.add_state(name=STATE_TWO, state=StateTwo())
+        fsm_template.set_metadata(ac.CONTROL, ac.TO_FSM)
 
-        fsm.add_transition(source=STATE_ZERO, dest=STATE_ONE)
-        fsm.add_transition(source=STATE_ZERO, dest=STATE_TWO)
-        self.add_behaviour(fsm, fsm_template)
+        au.initialize(self, cmb_template, fsm_template, FSMBehav, StateZero, StateOne, StateTwo)
+
 
 if __name__ == "__main__":
-    agent1 = ClassifyingAgent(agent_config.agents_dict['agent_1']['jid'],
-                              agent_config.agents_dict['agent_1']['password'])
-    agent1.set('agent_data', agent_config.agents_dict['agent_1'])
-    agent1.web.start(agent_config.agents_dict['agent_1']['hostname'], agent_config.agents_dict['agent_1']['port'])
+
+    # jak agenci źle się inicjują to trzeba albo usunąć wszystkie time.sleep(x), albo ustawić je na min. 5 sec
+
+    ##### TO_DO #####
+    # To poniżej wygląda źle. Przydałaby się jakaś ładna funkcja:
+    # - pozwalałaby na wybór ilu agetów chce się uruchomić, w jakiej kolejności, z jakimi opóźnieniami
+    # albo przynajmniej mniej wiecej coś takiego. Ważne żeby można było operować opóźnieniami między tworzeniem agentów.
+
+
+    agent1 = ClassifyingAgent(ac.agents_dict['agent_1']['jid'],
+                              ac.agents_dict['agent_1']['password'])
+    agent1.set('agent_data', ac.agents_dict['agent_1'])
+    agent1.web.start(ac.agents_dict['agent_1']['hostname'], ac.agents_dict['agent_1']['port'])
     agent1.start()
 
-    time.sleep(10)
+    #time.sleep(5)
+    #time.sleep(0.1)
     print("Initializing next agent...")
 
-
-    agent2 = ClassifyingAgent(agent_config.agents_dict['agent_2']['jid'],
-                              agent_config.agents_dict['agent_2']['password'])
-    agent2.set('agent_data', agent_config.agents_dict['agent_2'])
-    agent2.web.start(agent_config.agents_dict['agent_2']['hostname'], agent_config.agents_dict['agent_2']['port'])
+    agent2 = ClassifyingAgent(ac.agents_dict['agent_2']['jid'],
+                              ac.agents_dict['agent_2']['password'])
+    agent2.set('agent_data', ac.agents_dict['agent_2'])
+    agent2.web.start(ac.agents_dict['agent_2']['hostname'], ac.agents_dict['agent_2']['port'])
     agent2.start()
 
-    time.sleep(10)
+    #time.sleep(5)
     print("Initializing next agent...")
 
-
-    agent3 = ClassifyingAgent(agent_config.agents_dict['agent_3']['jid'],
-                              agent_config.agents_dict['agent_3']['password'])
-    agent3.set('agent_data', agent_config.agents_dict['agent_3'])
-    agent3.web.start(agent_config.agents_dict['agent_3']['hostname'], agent_config.agents_dict['agent_3']['port'])
+    agent3 = ClassifyingAgent(ac.agents_dict['agent_3']['jid'],
+                              ac.agents_dict['agent_3']['password'])
+    agent3.set('agent_data', ac.agents_dict['agent_3'])
+    agent3.web.start(ac.agents_dict['agent_3']['hostname'], ac.agents_dict['agent_3']['port'])
     agent3.start()
+
+    #time.sleep(5)
+    print("Initializing next agent...")
+
+    agent4 = ClassifyingAgent(ac.agents_dict['agent_4']['jid'],
+                              ac.agents_dict['agent_4']['password'])
+    agent4.set('agent_data', ac.agents_dict['agent_4'])
+    agent4.web.start(ac.agents_dict['agent_4']['hostname'], ac.agents_dict['agent_4']['port'])
+    agent4.start()
 
 print("Wait until user interrupts with ctrl+C")
 while True:

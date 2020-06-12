@@ -25,7 +25,7 @@ na czas obliczeń. Klasyfikator zaczyna poprawnie klasyfikować przy ustawieniac
 W pliku cnn.py znajduje się już gotowy klasyfikator.  
 W pliku classifying_agent.py znajdudje się wstępnie przygotowany model agenta.  
 
-** JAK działa classifying_agent.py? **
+**JAK działa classifying_agent.py?**
 Zaimplementowałem 2 zachowania: 1 cykliczne to skrzynka pocztowa agenta dowodzącego - aktywowana jest
 przez wysłanie do siebie maila przez agenta który został agentem dowodzącym. Po aktywacji odpowiada wszystkim
 agentom kto dowodzi. Jak raz skrzynka zostanie aktywowwana to nie da siejej wyłaczyć - chyba że agent dowodzący zginie.  

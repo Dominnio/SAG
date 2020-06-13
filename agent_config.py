@@ -77,7 +77,7 @@ MULTIPLE_COMMANDERS = "Are there multiple commanders?" # Kod na wypadek wystapie
 AM_I_THE_COMMANDER = "Am I the commander?" # Nie używane
 NOT_A_COMMANDER = "Not a commander."# Nie używane
 
-WHO_IS_READY_TO_SERVE = "[WHO_IS_READY_TO_SERVE]" # Agent dowodzący sprawdza którzy agenci są gotowi do rozpoznawania
+WHO_IS_READY_TO_SERVE = "[WHO_IS_READY_TO_SERVE]" # Agent dowodzący sprawdza którzy agenci są gotowi do działania
 ALIVE_SLAVE = "[ALIVE_SLAVE]" # informacja zwrotna dla agenta dowodzącego poszukującego agentów gotowych do działania
 
 # Voting messages

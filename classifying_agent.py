@@ -10,6 +10,7 @@ import agent_config as ac
 import cnn
 import help_functions as hf
 import agent_utilities as au
+import asyncio
 
 
 ### Finite State Machine and States
@@ -21,6 +22,11 @@ class FSMBehav(FSMBehaviour):
 
 class StateZero(State):
     async def run(self):
+        print("Agent {} in state 0".format(self.agent.jid))
+        # Latka - Symulacja śmierci agenta
+        await hf.simulate_death(self)
+        await au.allocate_new_agent(self)
+
         ##### TO_DO #####
         # Tutaj należy przeprowadzić trenowanie agenta(lub ewentualne pobranie gotowego wstępnie wytrenowanego modelu
         # klasyfikatora) - czyli odpalenie pliku cnn.py . Gotowy model będzie używany w stanie 2 i 1, więc należy
@@ -28,13 +34,14 @@ class StateZero(State):
 
         # Co do pobierania gotowego modelu klasyfikatora - narazie olać, jak starczy czasu to zrobi się to pod koniec.
 
-        print("Agent {} in state 0".format(self.agent.jid))
-        await au.allocate_new_agent(self)
+
 
 
 class StateOne(State):
     async def run(self):
         print("Agent {} is in state 1.".format(self.agent.jid))
+        # Latka - Symulacja śmierci agenta
+        await hf.simulate_death(self)
         await au.prevent_multiple_commanders(self, 1)
 
         ##### TO_DO #####
@@ -65,16 +72,87 @@ class StateTwo(State):
     async def run(self):
         print("Agent {} is in state 2.".format(self.agent.jid))
 
-        ##### TO_DO #####
-        # Tutaj powinna odbywać się klasyfikacja, czyli agent powinien oczekiwać na wiadomość albo o przeprowadzeniu
-        # głosowania na nowego lidera, albo na wiadomość z obrazkiem(lub linkiem do obrazka), klasyfikować go i odesłać.
-        # wynik klasyfikacji powinien być zapisany na wypadek utraty informacji (śmierć agenta dowodzącego) i możliwa
-        # do ponownego wysłania
+        # Latka - Symulacja śmierci agenta
+        await hf.simulate_death(self)
 
-        # Będzie tutaj również funkcja sprawdzajaca co 3 sec, czy agent dowodzący zyje i przeprowadzajaca głosowanie
-        # na wypadek śmierci.
+        await asyncio.sleep(3) # Time for new commander for initializing
+        commander_jid = await au.get_commander_info(self)
 
-        # najprawdopodobniej sam się tym zajmę, bo tutaj będzie najwięcej komunikacji między agentami.
+        if commander_jid == None:
+            # nie testowany kod - ale program skrajnie rzadko wchodzi do do tego case'a. Dokończyć jak starczy czasu
+            print("Agent {} cannot contact with commander".format(self.agent.jid))
+            print("Voting time! Started by Agent {}".format(self.agent.jid))
+            voting_resoult = await hf.start_voting(self, ac.CONTROL, ac.TO_FSM, ac.AGENT_VOTING)
+            if voting_resoult:
+                await hf.promotion_to_commanding(self)
+                self.set_next_state(ac.STATE_ONE)
+            else:
+                self.set_next_state(ac.STATE_TWO)
+
+        msg_health_check = hf.prep_msg(commander_jid, ac.CONTROL, ac.TO_CMB, ac.WHO_IS_IN_COMMAND)
+
+        alive_check = True
+        voting_resoult = False
+
+        while True:
+            # Latka - Symulacja śmierci agenta
+            await hf.simulate_death(self)
+
+            send_health_check = True
+
+            #print("Agent {} at the start of state2 loop".format(self.agent.jid))
+
+            msg = await self.receive(timeout=5)
+            if msg and msg.sender == commander_jid and msg.body[:len(ac.WHO_IS_IN_COMMAND_RESPONSE)] == ac.WHO_IS_IN_COMMAND_RESPONSE:
+                print("Agent {} received msg_health_check".format(self.agent.jid))
+                send_health_check = False # te dwie flagi zapobiegają nadmiarowemu wykon. alive_check na commanderze
+                alive_check = True        # powinny byc w każdym if statemencie
+
+            if msg and msg.sender == commander_jid and msg.body[:len(ac.CLASSIFY_OBJECT)] == ac.CLASSIFY_OBJECT:
+                print("wykonaj zadanie klasyfikacji, zapisz na później i odeślij odpowiedź so stanu 1 TO_FSM")
+                #w msg.body w dalszej części powinna być przeslana informacja o obrazku do zdekodowania
+
+                ##### TO_DO #####
+                # Tutaj powinna odbywać się klasyfikacja, czyli agent powinien oczekiwać na wiadomość
+                # z obrazkiem(lub linkiem do obrazka), klasyfikować go i odesłać.
+                # wynik klasyfikacji powinien być zapisany na wypadek utraty informacji (śmierć agenta dowodzącego)
+                # i możliwy do ponownego wysłania ( do nowego agenta dowodzącego)
+                # Lepiej tych wyników nie przechowywać w stanach, bo w scenariuszu w którym agent dowodzacy ginie, to
+                # a agent-robotnik zostnie agentem dowodzącym, to przejdzie on do stanu 1 i nie będzie miał dostępu
+                # do swojego stanu 2.
+
+                send_health_check = False
+                alive_check = True
+
+            if msg and msg.sender == commander_jid and msg.body[:len(ac.WHO_IS_READY_TO_SERVE)] == ac.WHO_IS_READY_TO_SERVE:
+                msg_ready = hf.prep_msg(commander_jid, ac.CONTROL, ac.TO_FSM, ac.ALIVE_SLAVE)
+                await self.send(msg_ready)
+
+                # Kod odpowiadający agentowi dowodzacemu, że jest gotowy do służby
+
+
+                send_health_check = False
+                alive_check = True
+
+
+            if not alive_check:
+                print("Voting time! Started by Agent {}".format(self.agent.jid))
+                voting_resoult = await hf.start_voting(self, ac.CONTROL, ac.TO_FSM, ac.AGENT_VOTING)
+                # await asyncio.sleep(3)  # wait for voting result
+                break
+
+            if send_health_check:
+                print("Agent {} prepared msg_health_check".format(self.agent.jid))
+                await self.send(msg_health_check) # wiadomość wysyłana jest co timeout z początku pętli
+                print("Agent {} send msg_health_check".format(self.agent.jid))
+
+                alive_check = False
+
+        if voting_resoult:
+            await hf.promotion_to_commanding(self)
+            self.set_next_state(ac.STATE_ONE)
+        else:
+            self.set_next_state(ac.STATE_TWO)
 
 
 class ClassifyingAgent(agent.Agent):
@@ -111,7 +189,7 @@ if __name__ == "__main__":
     agent1.web.start(ac.agents_dict['agent_1']['hostname'], ac.agents_dict['agent_1']['port'])
     agent1.start()
 
-    #time.sleep(5)
+    time.sleep(5)
     #time.sleep(0.1)
     print("Initializing next agent...")
 
@@ -121,7 +199,8 @@ if __name__ == "__main__":
     agent2.web.start(ac.agents_dict['agent_2']['hostname'], ac.agents_dict['agent_2']['port'])
     agent2.start()
 
-    #time.sleep(5)
+
+    time.sleep(5)
     print("Initializing next agent...")
 
     agent3 = ClassifyingAgent(ac.agents_dict['agent_3']['jid'],
@@ -129,21 +208,26 @@ if __name__ == "__main__":
     agent3.set('agent_data', ac.agents_dict['agent_3'])
     agent3.web.start(ac.agents_dict['agent_3']['hostname'], ac.agents_dict['agent_3']['port'])
     agent3.start()
+    #
+    # time.sleep(5)
+    # print("Initializing next agent...")
+    #
+    # agent4 = ClassifyingAgent(ac.agents_dict['agent_4']['jid'],
+    #                           ac.agents_dict['agent_4']['password'])
+    # agent4.set('agent_data', ac.agents_dict['agent_4'])
+    # agent4.web.start(ac.agents_dict['agent_4']['hostname'], ac.agents_dict['agent_4']['port'])
+    # agent4.start()
+    # time.sleep(5)
 
-    #time.sleep(5)
-    print("Initializing next agent...")
 
-    agent4 = ClassifyingAgent(ac.agents_dict['agent_4']['jid'],
-                              ac.agents_dict['agent_4']['password'])
-    agent4.set('agent_data', ac.agents_dict['agent_4'])
-    agent4.web.start(ac.agents_dict['agent_4']['hostname'], ac.agents_dict['agent_4']['port'])
-    agent4.start()
 
-print("Wait until user interrupts with ctrl+C")
-while True:
-    try:
-        time.sleep(1)
-    except KeyboardInterrupt:
-        agent1.stop()
-        quit_spade()
-        break
+#
+#
+# print("Wait until user interrupts with ctrl+C")
+# while True:
+#     try:
+#         time.sleep(1)
+#     except KeyboardInterrupt:
+#         agent1.stop()
+#         quit_spade()
+#         break

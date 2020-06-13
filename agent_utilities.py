@@ -1,6 +1,7 @@
 import agent_config as ac
 import help_functions as hf
 
+
 ## async def setup(self):
 def initialize(obj, template1, template2, fsmbehav, state0, state1, state2):
     # inicjalizacja zachowan
@@ -15,6 +16,8 @@ def initialize(obj, template1, template2, fsmbehav, state0, state1, state2):
     fsm.add_transition(source=ac.STATE_ZERO, dest=ac.STATE_ONE)
     fsm.add_transition(source=ac.STATE_ZERO, dest=ac.STATE_TWO)
     fsm.add_transition(source=ac.STATE_ONE, dest=ac.STATE_TWO)
+    fsm.add_transition(source=ac.STATE_TWO, dest=ac.STATE_TWO)
+    fsm.add_transition(source=ac.STATE_TWO, dest=ac.STATE_ONE)
     obj.add_behaviour(fsm, template2)
 
 
@@ -35,6 +38,10 @@ async def new_commander_initialization(obj):
 
     while True:
         commander = True
+
+        # Latka - Symulacja śmierci agenta
+        await hf.simulate_death(obj)
+
         msg = await obj.receive(timeout=1)
 
         # # Latka na wypadek wystapienia agenta w stanie 1 bez ustawionego autorespondera, po głosowaniu.
@@ -46,7 +53,6 @@ async def new_commander_initialization(obj):
 
         if msg and msg.sender == obj.agent.jid:  # if true agents becomes commander
             print("Agent {} is trying to take command.".format(obj.agent.jid))
-
 
             # Kod zabezpieczający przed wystąpieniem więcej niż jednego dowodzącego
 
@@ -80,6 +86,10 @@ async def new_commander_initialization(obj):
 async def commander_autoresponder(obj):
     print("New Commander is Agent {} (autoresponder-on)".format(obj.agent.jid))
     while True:
+
+        # Latka - Symulacja śmierci agenta
+        await hf.simulate_death(obj)
+
         msg = await obj.receive(timeout=1)
         if msg and msg.body == ac.WHO_IS_IN_COMMAND:
             msg_to_send = hf.prep_msg(msg.sender, ac.CONTROL, ac.TO_FSM,
@@ -105,6 +115,8 @@ async def commander_autoresponder(obj):
 #     async def run(self):
 async def allocate_new_agent(obj):
     # Funkcja decyduje czy nowy agent zostaje dowodzacym, czy nie.
+
+
 
     i = 1  # Ask all agents who is in command 1 time
     # print("Agent {} asking for commander {} time".format(obj.agent.jid, i))
@@ -143,9 +155,9 @@ async def prevent_multiple_commanders(obj, timeout):
     # przechodzi do stanu 2 - czyli domyślnego stanu zwykłych agentów.
 
     msg = await obj.receive(timeout=timeout)
-    if msg and msg.body == ac.MULTIPLE_COMMANDERS: #Głosowanie!
+    if msg and msg.body == ac.MULTIPLE_COMMANDERS:  # Głosowanie!
         voting_result = await hf.start_voting(obj, ac.CONTROL, ac.TO_FSM, type_of_voting=ac.COMMANDER_VOTING)
-        #print("Agent {} voting result: {}".format(obj.agent.jid, voting_result))
+        # print("Agent {} voting result: {}".format(obj.agent.jid, voting_result))
         if voting_result:
             await hf.promotion_to_commanding(obj)
             # obj.set_next_state(ac.STATE_ONE)      # Funkcja wywoływana jset ze stanu pierwszego
@@ -165,8 +177,60 @@ async def prevent_multiple_commanders(obj, timeout):
     #     obj.set_next_state(ac.STATE_TWO)
 
 
+# class StateTwo(State):
+#     async def run(self):
+async def get_commander_info(obj):
+    # funkcja pobiera informacje o aktualnym agencie dowodzacym i zwraca jego jid, lub None jak nie istnieje
+    commander_jid = None
+    await hf.send_to_all(obj, ac.CONTROL, ac.TO_CMB, ac.WHO_IS_IN_COMMAND)
+
+    msg = await obj.receive(timeout=2)  # oczekiwanie na odpowiedź agenta dowodzącego
+    if msg and msg.body[:len(ac.WHO_IS_IN_COMMAND_RESPONSE)] == ac.WHO_IS_IN_COMMAND_RESPONSE:
+        commander_jid = msg.sender
+        # print(commander_jid)
+
+    return commander_jid
 
 
+### Nie użyte
+async def is_commander_alive(obj, commander_jid):
+    # Funkcja zwraca False jak commander nie odpowiada i True jak commander żyje
+    alive = False
 
+    msg_to_send = hf.prep_msg(commander_jid, ac.CONTROL, ac.TO_CMB, ac.WHO_IS_IN_COMMAND)
+    await obj.send(msg_to_send)
 
+    msg = await obj.receive(timeout=1)
+    if msg and msg.body[:len(ac.WHO_IS_IN_COMMAND_RESPONSE)] == ac.WHO_IS_IN_COMMAND_RESPONSE:
+        alive = True
 
+    return alive
+
+    #     msg_to_send = hf.prep_msg(msg.sender, ac.CONTROL, ac.TO_FSM,
+    #                               ac.WHO_IS_IN_COMMAND_RESPONSE + "Agent {} is in command.".format(
+    #                                   obj.agent.jid))
+    #
+    # # control, to cmb, mutliple commanders
+    # async def send_to_all(obj, meta_key, meta_value, msg_body):
+    #     for k, v in ac.agents_dict.items():
+    #         if str(v['jid']) != str(obj.agent.jid):
+    #             msg_to_send = prep_msg(v['jid'], meta_key, meta_value, msg_body)
+    #             # print("Agent {} , message to {} has been sent.".format(self.agent.jid, v['jid']))
+    #             await obj.send(msg_to_send)
+    #
+    #
+    #
+    #     while True:
+    #         msg = await obj.receive(timeout=1)
+    #         if msg and msg.body == ac.WHO_IS_IN_COMMAND:
+    #             msg_to_send = hf.prep_msg(msg.sender, ac.CONTROL, ac.TO_FSM,
+    #                                       ac.WHO_IS_IN_COMMAND_RESPONSE + "Agent {} is in command.".format(
+    #                                           obj.agent.jid))
+    #             await obj.send(msg_to_send)
+    #         # To ewentualnie do zmiany ( zabezpiecza przypadek, gdyby mimo
+    #         # istnienia agenta dowodzącego, pojawił się nowy agent dowodzący)
+    #         if msg and msg.body == ac.MULTIPLE_COMMANDERS:
+    #             msg_to_send = hf.prep_msg(msg.sender, ac.CONTROL, ac.TO_CMB,
+    #                                       ac.WHO_IS_IN_COMMAND_RESPONSE + "Agent {} is in command.".format(
+    #                                           obj.agent.jid))
+    #             await obj.send(msg_to_send)

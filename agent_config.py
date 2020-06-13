@@ -67,22 +67,32 @@ test_images = {
 
 # Templates
 # To Commander Key, Values
-CONTROL = "control"
-TO_CMB = "to_cmb"
-TO_FSM = "to_fsm"
+CONTROL = "[CONTROL]"  # używ. do wys. sekw. kontrlonych. Wszyst. jest sekw. kontrolnymi wiec nie ma innych.
+TO_CMB = "[TO_CMB]" # Behaviour do którego skierowana jest wiadomosc - to_cmb - CommanderMessageBox
+TO_FSM = "[TO_FSM]" # Behaviour do którego skierowana jest wiadomosc - to_fsm - FSMBehaviour
 # Control messages
-WHO_IS_IN_COMMAND = "Who is in command?"
-WHO_IS_IN_COMMAND_RESPONSE = "[WIICR]"
-MULTIPLE_COMMANDERS = "Are there multiple commanders?"
-AM_I_THE_COMMANDER = "Am I the commander?"
-NOT_A_COMMANDER = "Not a commander."
+WHO_IS_IN_COMMAND = "Who is in command?" # Wysyłane przez agentow pytajacych o istnienie agenta dowodzacego
+WHO_IS_IN_COMMAND_RESPONSE = "[WIICR]" # Odpowiedz agenta dowodzącego na zapytanie "czy istniejesz"
+MULTIPLE_COMMANDERS = "Are there multiple commanders?" # Kod na wypadek wystapienia wielu commanderów
+AM_I_THE_COMMANDER = "Am I the commander?" # Nie używane
+NOT_A_COMMANDER = "Not a commander."# Nie używane
+
+WHO_IS_READY_TO_SERVE = "[WHO_IS_READY_TO_SERVE]" # Agent dowodzący sprawdza którzy agenci są gotowi do rozpoznawania
+ALIVE_SLAVE = "[ALIVE_SLAVE]" # informacja zwrotna dla agenta dowodzącego poszukującego agentów gotowych do działania
 
 # Voting messages
-COMMANDER_VOTING = "[CV]"
+COMMANDER_VOTING = "[CV]" # Kod oznaczający głosowanie między zduplikowanymi agentami dowodzącymi
+AGENT_VOTING = "[AV]" # Kod oznaczający głosowanie na wybory nowego agenta dowodzacego
 
-STATE_ZERO = "STATE_ZERO"
+
+# Recognition codes
+CLASSIFY_OBJECT = "[CLASSIFY_OBJECT]" # Kod który powinien być dołączany do wiadom. z linkiem do obrazka do klasyfikacji
+
+
+# State codes
+
+STATE_ZERO = "STATE_ZERO" # Oznaczenia stanów
 STATE_ONE = "STATE_ONE"
 STATE_TWO = "STATE_TWO"
 STATE_THREE = "STATE_THREE"
 
-# Message codes

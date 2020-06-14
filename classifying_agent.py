@@ -1,3 +1,8 @@
+# Politechnika Warszawska, Systemy Agentowe
+# Projekt: Rozproszony klasyfikator obrazów
+# Autorzy: Maciej Karcz, Tomasz Szczepański, Dominik Orliński
+# Data ostaniej aktulizacji: 15:06:2020
+
 from spade import agent
 from spade.behaviour import CyclicBehaviour
 from spade.behaviour import FSMBehaviour, State

@@ -1,3 +1,8 @@
+# Politechnika Warszawska, Systemy Agentowe
+# Projekt: Rozproszony klasyfikator obrazów
+# Autorzy: Maciej Karcz, Tomasz Szczepański, Dominik Orliński
+# Data ostaniej aktulizacji: 15:06:2020
+
 import os
 
 server_name = 'jabber.hot-chilli.net'

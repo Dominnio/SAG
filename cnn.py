@@ -1,3 +1,8 @@
+# Politechnika Warszawska, Systemy Agentowe
+# Projekt: Rozproszony klasyfikator obrazów
+# Autorzy: Maciej Karcz, Tomasz Szczepański, Dominik Orliński
+# Data ostaniej aktulizacji: 15:06:2020
+
 # Importing the Keras libraries and packages
 from keras.models import Sequential
 from keras.layers import Conv2D

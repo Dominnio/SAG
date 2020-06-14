@@ -40,6 +40,7 @@ class Interface:
 
         try:
             shutil.copy(self.user_img_path, absolute_dest_dir) 
+            print ("File copy success - file has been put in a queue") 
         except IOError:
             print("File not found or path is incorrect")
 
@@ -57,29 +58,35 @@ class Interface:
     def readClassification(self):
         if (self.classif_file_handle != None):
             print(self.classif_file_handle.name)
-            print (self.classif_file_handle.read())
-        
+            print (self.classif_file_handle.read())    
 
 
 def main(): 
 
     interf = Interface()  
-    choice = input("What would you like to do? (q is quit, h is help)\n")
+    print ("***\nYou have just run the interface that allows you to both read from the multiagent classifier and provide images to be classifed\n***\n")
+    choice = input(">What would you like to do? (q is quit, h is help)\n")
 
     while choice != 'q':
         if choice == 'p':
-            print("You chose path")
+            path = input(">Provide absolute path to the image you want to classify:\n")
+            if (path != None):                
+                interf.getImageFromUser(path)
         elif choice == 'r':
-            print("You chose result")
+            print("-Get results:")
+            interf.readClassification()
         elif choice == 'l':
-            print("You chose logslist")
+            print("-Read logs:")
+            interf.readLogs()
         elif choice == 'f':
-            print("You chose files")
+            print("-Check list of files to be recognized:")
+            for file in interf.listFiles(interf.images_to_recognize + "."):
+                print (file)  
         elif choice == 'h':
-            print("p - path to the image to be recognized \nr - get result of classification\nl - read logs from system\nf - list files to be recognized")
+            print("*HELP*:\n\tp - path to the image to be recognized \n\tr - get result of classification\n\tl - read logs from system\n\tf - list files to be recognized\n")
         else:
-            print("That is not a valid input.")
-        choice = input("What would you like to do? (q is quit, h is help)\n")
+            print(">That is not a valid input!")
+        choice = input(">What would you like to do? (q is quit, h is help)\n")
 
       
     # parser = argparse.ArgumentParser("Interface for multiagent classifer - user can provide images to be classifed and read logs from system")

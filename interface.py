@@ -1,10 +1,7 @@
 import os
 import shutil 
-import argparse
 
 #config file names 
-
-
 class Interface:
 
     # constructor creates paths to directories used by multi-agent classifier
@@ -87,28 +84,6 @@ def main():
         else:
             print(">That is not a valid input!")
         choice = input(">What would you like to do? (q is quit, h is help)\n")
-
-      
-    # parser = argparse.ArgumentParser("Interface for multiagent classifer - user can provide images to be classifed and read logs from system")
-    # parser.add_argument('-m','--mode', type=str, help='"result" - user can get classification result,\n "data" - user can provide image to be classified')
-    
-    # my test file path: /home/tomek1911/Pictures/test.jpg
-    # python interface.py -p "/home/tomek1911/Pictures/test.jpg"
-
-    # parser.add_argument('-p','--path', type=str, help='provide image to be classified by system')
-    # args = parser.parse_args()
-    
-    # example of using interface - get image from user - check folder of images in to be recognized and read from logs and classification results
-   
-    # interf = Interface()  
-    # if (args.path != None):
-    #     interf.getImageFromUser(args.path)
-
-    # for file in interf.listFiles(interf.images_to_recognize + "."):
-    #     print (file)    
-    
-    # interf.readLogs()
-    # interf.readClassification()
 
 if __name__ == "__main__":    
     main()

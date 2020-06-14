@@ -3,6 +3,21 @@ from spade.message import Message
 from spade.template import Template
 import random
 import asyncio
+import os
+import glob
+import re
+from collections import Counter
+
+
+# f = []
+# for (dirpath, dirnames, filenames) in os.walk(r'..\SAG_agents\data_to_recognize\recognize'):
+#     f.extend(filenames)
+#     break
+# print(f)
+
+def get_file_paths(d):
+    return glob.glob(os.path.join(d, '*'))
+
 
 
 # control, to cmb, mutliple commanders
@@ -98,9 +113,50 @@ async def simulate_death(obj):
     #         #print("Agent {} dying".format(obj.agent.jid))
     #         pass
 
-# all_votes = []
-# all_votes.append(get_vote(make_vote()))
-# Trump_vote = 11
-# print(all_votes)
-# print(all_votes)
-# print(did_you_win(all_votes, Trump_vote))
+def get_contacts_from_roster(roster):
+    # funkcja do wydobywania kontaktow ze SPAD'e w formie listy
+    contact_list = []
+    con_str = str(roster)
+    indexes = [m.start() for m in re.finditer('t=\'(.+?)\',', con_str)]
+    for x in indexes:
+       tmp = re.search('\'(.+?)\'', con_str[x:x + 20]).group(0)
+       tmp = tmp[1:-1] + '@' + ac.server_name
+       contact_list.append(tmp)
+    return contact_list
+
+def ballot_box(classif_list,not_classif_list):
+    # funkcja pobiera głosy za, przeciw i zwraca słownik z wynikami klasyfikacji.
+    # Jesli wynik jest negatywny np. horse : -3, to znaczy ze agenci twierdza ze na obrazku nie ma konia.
+    # Wynik 0 oznacza ze glosow za i przeciw bylo tyle samo
+    classif_list_counter = Counter(classif_list)
+    not_classif_list_counter = Counter(not_classif_list)
+    classif_list_counter.subtract(not_classif_list_counter)
+
+    return dict(classif_list_counter)
+
+#
+# a = ['dog','dog','cat','chicken']
+# b = ['dog','cat','horse','chicken','chicken']
+#
+# print(ballot_box(a,b))
+
+#
+# print("classif_lits : {}".format(classif_list))
+# print("not_classif_list : {}".format(not_classif_list))
+#
+# count_clas = Counter(classif_list)
+# count_not_clas = Counter(not_classif_list)
+#
+# # dict_count_clas = count_clas.items()
+# # ditc_count_not_clas = count_not_clas.items()
+# #
+# # # for k, v in dict_count_clas:
+#
+# print("classif_lits Counter: {}".format(count_clas))
+# print("not_classif_list Counter: {}".format(count_not_clas))
+#
+# count_clas.subtract(count_not_clas)
+#
+# print("Result: {}".format(count_clas))
+
+

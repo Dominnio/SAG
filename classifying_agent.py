@@ -4,6 +4,7 @@ from spade.behaviour import CyclicBehaviour
 from spade.behaviour import FSMBehaviour, State
 from spade.behaviour import OneShotBehaviour
 from spade.template import Template
+from spade.message import Message
 import time
 import asyncio
 import agent_config as ac
@@ -11,6 +12,7 @@ import cnn
 import help_functions as hf
 import agent_utilities as au
 import asyncio
+import os
 
 
 ### Finite State Machine and States
@@ -23,6 +25,7 @@ class FSMBehav(FSMBehaviour):
 class StateZero(State):
     async def run(self):
         print("Agent {} in state 0".format(self.agent.jid))
+
         # Latka - Symulacja śmierci agenta
         await hf.simulate_death(self)
         await au.allocate_new_agent(self)
@@ -43,6 +46,77 @@ class StateOne(State):
         # Latka - Symulacja śmierci agenta
         await hf.simulate_death(self)
         await au.prevent_multiple_commanders(self, 1)
+
+        #await asyncio.sleep(10000)
+
+
+
+        while True:
+            # Latka - Symulacja śmierci agenta
+            await hf.simulate_death(self)
+
+            await asyncio.sleep(3)
+            while len(os.listdir(ac.RECOGNIZE_FOLDER)) != 0:
+                print("Agent {} wykryl obrazek do rozpoznania!".format(self.agent.jid))
+                # Znajdz zywych agentow
+                alive_agent_list = await au.get_alive_agents(self)
+                # print(alive_agent_list)
+
+                # Pobierz 1 lub wiecej zdjec (sciezek do zdjec)
+                images_to_recognize = hf.get_file_paths(ac.RECOGNIZE_FOLDER)
+                print("Agent {} poznal co trzeba rozpoznac: {}.".format(self.agent.jid,images_to_recognize))
+                # Wyslij je agentom do rozpoznania
+                for image_to_recognize in images_to_recognize:
+                    print("Agent {} wysyla obrazek 1 {}.".format(self.agent.jid, image_to_recognize))
+                    classif_list = []
+                    not_classif_list = []
+
+                    # glos agenta dowodzacego
+                    commander_prediction = cnn.predict_one(self.agent.model, image_to_recognize)
+
+                    if commander_prediction[:len(ac.CLASSIFIED)] == ac.CLASSIFIED:
+                        feature = commander_prediction[len(ac.CLASSIFIED):]
+                        classif_list.append(str(feature))
+                    else:
+                        feature = commander_prediction[len(ac.NOT_CLASSIFIED):]
+                        not_classif_list.append(str(feature))
+
+                    # wyslanie zdjecia do wszystkich agentow
+
+                    msg_body = ac.CLASSIFY_OBJECT + image_to_recognize
+                    for alive_agent in alive_agent_list:
+                        msg_to_send = hf.prep_msg(alive_agent, ac.CONTROL, ac.TO_FSM, msg_body)
+                        await self.send(msg_to_send)
+
+                    # zbieranie odpowiedzi po każdym z obrazków z osobna żeby sie nie pomyliło
+
+                    while True:
+                        classification_end = True
+                        msg = await self.receive(timeout=1)  # waiting 1 sec from last gathered recognison
+
+                        if msg and msg.body[:len(ac.CLASSIFIED)] == ac.CLASSIFIED:
+                            feature = msg.body[len(ac.CLASSIFIED):]
+                            classif_list.append(str(feature))
+                            classification_end = False
+
+                        if msg and msg.body[:len(ac.NOT_CLASSIFIED)] == ac.NOT_CLASSIFIED:
+                            feature = msg.body[len(ac.NOT_CLASSIFIED):]
+                            not_classif_list.append(str(feature))
+                            classification_end = False
+
+                        if classification_end:
+                            break
+
+                    classification_results = hf.ballot_box(classif_list,not_classif_list)
+                    print("Wyniki klasyfikacji: {}".format(classification_results))
+
+                    # tutaj zbieranie odpowiedzi!
+
+                await asyncio.sleep(100)
+
+
+
+
 
         ##### TO_DO #####
         # Tutaj powinna byc zakodowana interakcja z uzytkownikiem, czyli pobieranie zdjęcia, rozsyłanie
@@ -71,6 +145,7 @@ class StateOne(State):
 class StateTwo(State):
     async def run(self):
         print("Agent {} is in state 2.".format(self.agent.jid))
+
 
         # Latka - Symulacja śmierci agenta
         await hf.simulate_death(self)
@@ -109,8 +184,15 @@ class StateTwo(State):
                 alive_check = True        # powinny byc w każdym if statemencie
 
             if msg and msg.sender == commander_jid and msg.body[:len(ac.CLASSIFY_OBJECT)] == ac.CLASSIFY_OBJECT:
-                print("wykonaj zadanie klasyfikacji, zapisz na później i odeślij odpowiedź so stanu 1 TO_FSM")
-                #w msg.body w dalszej części powinna być przeslana informacja o obrazku do zdekodowania
+                img = msg.body[len(ac.CLASSIFY_OBJECT):]
+                print("Agent {} received {} for classification from {} ".format(self.agent.jid, img, commander_jid))
+
+                # rozpoznawanie i odsyłanie odpowiedzi
+                single_prediction = cnn.predict_one(self.agent.model, img)
+
+                msg_ready = hf.prep_msg(commander_jid, ac.CONTROL, ac.TO_FSM, single_prediction)
+                await self.send(msg_ready)
+
 
                 ##### TO_DO #####
                 # Tutaj powinna odbywać się klasyfikacja, czyli agent powinien oczekiwać na wiadomość
@@ -120,6 +202,9 @@ class StateTwo(State):
                 # Lepiej tych wyników nie przechowywać w stanach, bo w scenariuszu w którym agent dowodzacy ginie, to
                 # a agent-robotnik zostnie agentem dowodzącym, to przejdzie on do stanu 1 i nie będzie miał dostępu
                 # do swojego stanu 2.
+
+                # Update - wydaje mi się że informacja niebedzie tracona bo zdjęcie będzie usuwane z folderu recognize
+                # tylko jak zostanie rozpoznane
 
                 send_health_check = False
                 alive_check = True
@@ -164,13 +249,27 @@ class ClassifyingAgent(agent.Agent):
 
     async def setup(self):
         print("Agent {} starting. Purpose : recognize {}.".format(self.jid, self._values['agent_data']['purpose']))
+        ###############################
+        # Przygotowywanie klasyfikatora
+        self.model = cnn.initialize_classificator(self._values['agent_data'])
+        #
+        ###############################
+
+
         cmb_template = Template()
         cmb_template.set_metadata(ac.CONTROL, ac.TO_CMB)
+
+        #Flaga do przyjmowania subskrypcji od wszystkich
+        self.presence.approve_all = True
+        self._values
 
         fsm_template = Template()
         fsm_template.set_metadata(ac.CONTROL, ac.TO_FSM)
 
-        au.initialize(self, cmb_template, fsm_template, FSMBehav, StateZero, StateOne, StateTwo)
+        # test_template = Template() #Wywal to w razie czego
+        # test_template.metadata = {}
+
+        au.initialize(self, cmb_template, (fsm_template), FSMBehav, StateZero, StateOne, StateTwo)
 
 
 if __name__ == "__main__":

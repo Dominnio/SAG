@@ -176,6 +176,61 @@ async def prevent_multiple_commanders(obj, timeout):
     #     msg = None
     #     obj.set_next_state(ac.STATE_TWO)
 
+async def get_alive_agents(obj):
+    # funkcja pobiera listę żywych agentów, porównuje ją z poprzednią listą i dodaje, lub usuwa agentów
+    contacts = obj.presence.get_contacts()
+
+    contacts = hf.get_contacts_from_roster(str(contacts))
+    #print("From roster of contacts: {}".format(contacts))
+
+    await hf.send_to_all(obj, ac.CONTROL, ac.TO_FSM, ac.WHO_IS_READY_TO_SERVE)
+    alive_agents_list = []
+    while True:
+        collecting_messages = True
+        msg = await obj.receive(timeout=1)  # waiting 1 sec from last gathered agent
+        if msg and msg.body[:len(ac.ALIVE_SLAVE)] == ac.ALIVE_SLAVE:
+            # dodawanie do listy znajomych żywych agentów
+            # obj.presence.subscribe(str(msg.sender))   # subskrypcja działa dziwnie - czasami subskrybujesz tego samego
+            alive_agents_list.append(str(msg.sender))   # wielokrotnie
+
+            collecting_messages = False
+        if collecting_messages:
+            break
+    #print("Alive agents list: {}".format(alive_agents_list))
+
+    old_contacts = list(set(contacts) - set(alive_agents_list))
+    #print("Stare kontakty: {}".format(old_contacts))
+    for old_contact in old_contacts:
+        pass
+        # obj.presence.unsubscribe(str(old_contact)) # Z jakiegoś powodu program nie chce odsubsrybować - można umieścić
+                                                     # w podsumowaniu że to nie działą
+    return alive_agents_list
+
+
+
+async def send_image_for_recognition(obj,img_path):
+    # funkcja pobiera ścieżkę do obrazeka, wysyła ją do agentów i zwraca wynik klasyfikacji
+    pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # class StateTwo(State):
 #     async def run(self):

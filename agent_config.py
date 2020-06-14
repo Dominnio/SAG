@@ -8,8 +8,8 @@ agents_dict = {
         'password': '1qwerty8',
         'hostname': '127.0.0.1',
         'port': '10001',
-        'training_set_path': os.path.join('..', 'datasets', 'dogs', 'training_set'),
-        'test_set_path': os.path.join('..', 'datasets', 'dogs', 'test_set'),
+        'training_set_path': os.path.join('..','SAG_agents', 'datasets', 'dogs', 'training_set'),
+        'test_set_path': os.path.join('..','SAG_agents', 'datasets', 'dogs', 'test_set'),
         'purpose': 'dogs',
         'steps_per_epoch': '1',
         'epochs': '1',
@@ -20,8 +20,8 @@ agents_dict = {
         'password': '1qwerty8',
         'hostname': '127.0.0.1',
         'port': '10002',
-        'training_set_path': os.path.join('..', 'datasets', 'cats', 'training_set'),
-        'test_set_path': os.path.join('..', 'datasets', 'cats', 'test_set'),
+        'training_set_path': os.path.join('..','SAG_agents', 'datasets', 'cats', 'training_set'),
+        'test_set_path': os.path.join('..','SAG_agents', 'datasets', 'cats', 'test_set'),
         'purpose': 'cats',
         'steps_per_epoch': '1',
         'epochs': '1',
@@ -32,8 +32,8 @@ agents_dict = {
         'password': '1qwerty8',
         'hostname': '127.0.0.1',
         'port': '10003',
-        'training_set_path': os.path.join('..', 'datasets', 'horses', 'training_set'),
-        'test_set_path': os.path.join('..', 'datasets', 'horses', 'test_set'),
+        'training_set_path': os.path.join('..','SAG_agents', 'datasets', 'horses', 'training_set'),
+        'test_set_path': os.path.join('..','SAG_agents', 'datasets', 'horses', 'test_set'),
         'purpose': 'horses',
         'steps_per_epoch': '1',
         'epochs': '1',
@@ -44,8 +44,8 @@ agents_dict = {
         'password': '1qwerty8',
         'hostname': '127.0.0.1',
         'port': '10004',
-        'training_set_path': os.path.join('..', 'datasets', 'chickens', 'training_set'),
-        'test_set_path': os.path.join('..', 'datasets', 'chickens', 'test_set'),
+        'training_set_path': os.path.join('..','SAG_agents', 'datasets', 'chickens', 'training_set'),
+        'test_set_path': os.path.join('..','SAG_agents', 'datasets', 'chickens', 'test_set'),
         'purpose': 'chickens',
         'steps_per_epoch': '1',
         'epochs': '1',
@@ -54,14 +54,14 @@ agents_dict = {
 }
 
 test_images = {
-    'cat1': os.path.join('..', 'datasets', 'single_prediction', 'cat.1.jpg'),
-    'cat2': os.path.join('..', 'datasets', 'single_prediction', 'cat.2.jpg'),
-    'chicken1': os.path.join('..', 'datasets', 'single_prediction', 'chicken.1.jpeg'),
-    'chicken2': os.path.join('..', 'datasets', 'single_prediction', 'chicken.2.jpeg'),
-    'dog1': os.path.join('..', 'datasets', 'single_prediction', 'dog.1.jpg'),
-    'dog2': os.path.join('..', 'datasets', 'single_prediction', 'dog.2.jpg'),
-    'horse1': os.path.join('..', 'datasets', 'single_prediction', 'horse.1.jpeg'),
-    'horse2': os.path.join('..', 'datasets', 'single_prediction', 'horse.2.jpeg')
+    'cat1': os.path.join('..','SAG_agents', 'datasets', 'single_prediction', 'cat.1.jpg'),
+    'cat2': os.path.join('..','SAG_agents', 'datasets', 'single_prediction', 'cat.2.jpg'),
+    'chicken1': os.path.join('..','SAG_agents', 'datasets', 'single_prediction', 'chicken.1.jpeg'),
+    'chicken2': os.path.join('..','SAG_agents', 'datasets', 'single_prediction', 'chicken.2.jpeg'),
+    'dog1': os.path.join('..','SAG_agents', 'datasets', 'single_prediction', 'dog.1.jpg'),
+    'dog2': os.path.join('..','SAG_agents', 'datasets', 'single_prediction', 'dog.2.jpg'),
+    'horse1': os.path.join('..','SAG_agents', 'datasets', 'single_prediction', 'horse.1.jpeg'),
+    'horse2': os.path.join('..','SAG_agents', 'datasets', 'single_prediction', 'horse.2.jpeg')
 }
 
 
@@ -88,7 +88,8 @@ AGENT_VOTING = "[AV]" # Kod oznaczający głosowanie na wybory nowego agenta dow
 # Recognition codes
 CLASSIFY_OBJECT = "[CLASSIFY_OBJECT]" # Kod który powinien być dołączany do wiadom. z linkiem do obrazka do klasyfikacji
 
-
+CLASSIFIED = "[CLASSIFIED]"
+NOT_CLASSIFIED = "[NOT_CLASSIFIED]"
 # State codes
 
 STATE_ZERO = "STATE_ZERO" # Oznaczenia stanów
@@ -96,3 +97,10 @@ STATE_ONE = "STATE_ONE"
 STATE_TWO = "STATE_TWO"
 STATE_THREE = "STATE_THREE"
 
+
+#########################################################
+# Recognize data folders
+
+RECOGNIZE_FOLDER = os.path.join('..','SAG_agents','data_to_recognize', 'recognize')
+RECOGNIZED_FOLDER = os.path.join('..', 'SAG_agents', 'data_to_recognize', 'recognized')
+LOGS = os.path.join('..', 'SAG_agents', 'data_to_recognize', 'logs.txt')

@@ -281,46 +281,17 @@ if __name__ == "__main__":
     # - pozwalałaby na wybór ilu agetów chce się uruchomić, w jakiej kolejności, z jakimi opóźnieniami
     # albo przynajmniej mniej wiecej coś takiego. Ważne żeby można było operować opóźnieniami między tworzeniem agentów.
 
-
-    agent1 = ClassifyingAgent(ac.agents_dict['agent_1']['jid'],
-                              ac.agents_dict['agent_1']['password'])
-    agent1.set('agent_data', ac.agents_dict['agent_1'])
-    agent1.web.start(ac.agents_dict['agent_1']['hostname'], ac.agents_dict['agent_1']['port'])
-    agent1.start()
-
-    time.sleep(5)
-    #time.sleep(0.1)
-    print("Initializing next agent...")
-
-    agent2 = ClassifyingAgent(ac.agents_dict['agent_2']['jid'],
-                              ac.agents_dict['agent_2']['password'])
-    agent2.set('agent_data', ac.agents_dict['agent_2'])
-    agent2.web.start(ac.agents_dict['agent_2']['hostname'], ac.agents_dict['agent_2']['port'])
-    agent2.start()
-
-
-    time.sleep(5)
-    print("Initializing next agent...")
-
-    agent3 = ClassifyingAgent(ac.agents_dict['agent_3']['jid'],
-                              ac.agents_dict['agent_3']['password'])
-    agent3.set('agent_data', ac.agents_dict['agent_3'])
-    agent3.web.start(ac.agents_dict['agent_3']['hostname'], ac.agents_dict['agent_3']['port'])
-    agent3.start()
-    #
-    # time.sleep(5)
-    # print("Initializing next agent...")
-    #
-    # agent4 = ClassifyingAgent(ac.agents_dict['agent_4']['jid'],
-    #                           ac.agents_dict['agent_4']['password'])
-    # agent4.set('agent_data', ac.agents_dict['agent_4'])
-    # agent4.web.start(ac.agents_dict['agent_4']['hostname'], ac.agents_dict['agent_4']['port'])
-    # agent4.start()
-    # time.sleep(5)
-
-
-
-#
+    agents = []
+    agent_names = ['agent_1', 'agent_2', 'agent_3']
+    
+    for name in agent_names:
+        print("Initializing next agent...")
+        agent = ClassifyingAgent(ac.agents_dict[name]['jid'], ac.agents_dict[name]['password'])
+        agent.set('agent_data', ac.agents_dict[name])
+        agent.web.start(ac.agents_dict[name]['hostname'], ac.agents_dict[name]['port'])
+        agent.start()
+        time.sleep(5)
+        agents.append(agent)
 #
 # print("Wait until user interrupts with ctrl+C")
 # while True:

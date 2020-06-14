@@ -289,9 +289,29 @@ async def wait_for_file_and_recognize(obj):
 
                 hf.log_results(obj.agent.jid, alive_agents_number, image_to_recognize, classification_results)
 
-                ###### TO_DO #####
-                # Nie chce nadpisywać plików w docelowym folderze tylko je akumulować - poniższą funkcję trzeba zmienić
-                shutil.move(image_to_recognize, ac.RECOGNIZED_FOLDER)
+                ###
+                # avoid overwriting files in case they have indentical name but not indetical content
+                # check if file with similar name exists in recognized folder and rename by index suffix
+                hypotetic_filename = os.path.join(ac.RECOGNIZED_FOLDER, os.path.basename(image_to_recognize))                
+                if(os.path.isfile(hypotetic_filename)):
+                    image_to_recognize_filename = os.path.basename(image_to_recognize)
+                    old_name = os.path.splitext(image_to_recognize_filename)[0]
+                    file_extension = os.path.splitext(image_to_recognize_filename)[1]
+                    new_name = ""  
+                    i = 1                  
+                    while(os.path.isfile(hypotetic_filename)):
+                        i += 1
+                        if (i > 10):
+                            print ("too much copies in recognized folder")
+                            new_name = ""
+                            break
+                        new_name = old_name + "_" +str(i) + file_extension 
+                        hypotetic_filename = os.path.join(os.path.dirname(hypotetic_filename), new_name)  
+                    if (new_name != ""):    
+                        os.rename(image_to_recognize, os.path.join(os.path.dirname(image_to_recognize), new_name))
+                        shutil.move(image_to_recognize, ac.RECOGNIZED_FOLDER) # copy file properly renamed to avoid duplicates
+                else:
+                    shutil.move(image_to_recognize, ac.RECOGNIZED_FOLDER)
 
 async def agent_task_manager(obj, commander_jid):
     # Funkcja obsługująca zachowania i odpowiedzi agentów w zależności od odebranych odpowiedzi

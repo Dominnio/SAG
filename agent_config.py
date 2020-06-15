@@ -142,3 +142,4 @@ STATE_THREE = "STATE_THREE"
 RECOGNIZE_FOLDER = os.path.join('..','SAG','data_to_recognize', 'recognize')
 RECOGNIZED_FOLDER = os.path.join('..', 'SAG', 'data_to_recognize', 'recognized')
 CLASSIFICATION_RESULTS_FILE = os.path.join('..', 'SAG', 'data_to_recognize', 'classification_results.txt')
+LOGS_FILE = os.path.join('..', 'SAG', 'data_to_recognize', 'logs.txt')

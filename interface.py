@@ -1,9 +1,5 @@
 import os
 import shutil 
-import argparse
-
-#config file names 
-
 
 class Interface:
 
@@ -39,7 +35,8 @@ class Interface:
         absolute_dest_dir = os.path.join(absolute_dest_dir, os.path.basename(self.user_img_path))
 
         try:
-            shutil.copy(self.user_img_path, absolute_dest_dir) 
+            shutil.copy(self.user_img_path, absolute_dest_dir)
+            print ("File copy success - file has been put in a queue") 
         except IOError:
             print("File not found or path is incorrect")
 
@@ -57,32 +54,35 @@ class Interface:
     def readClassification(self):
         if (self.classif_file_handle != None):
             print(self.classif_file_handle.name)
-            print (self.classif_file_handle.read())
-        
+            print (self.classif_file_handle.read())    
 
 
-def main():
-      
-    parser = argparse.ArgumentParser("Interface for multiagent classifer - user can provide images to be classifed and read logs from system")
-    # parser.add_argument('-m','--mode', type=str, help='"result" - user can get classification result,\n "data" - user can provide image to be classified')
-    
-    # my test file path: /home/tomek1911/Pictures/test.jpg
-    # python interface.py -p "/home/tomek1911/Pictures/test.jpg"
+def main(): 
 
-    parser.add_argument('-p','--path', type=str, help='provide image to be classified by system')
-    args = parser.parse_args()
-    
-
-    # example of using interface - get image from user - check folder of images in to be recognized and read from logs and classification results
     interf = Interface()  
-    if (args.path != None):
-        interf.getImageFromUser(args.path)
+    print ("***\nYou have just run the interface that allows you to both read from the multiagent classifier and provide images to be classifed\n***\n")
+    choice = input(">What would you like to do? (q is quit, h is help)\n")
 
-    for file in interf.listFiles(interf.images_to_recognize + "."):
-        print (file)    
-    
-    interf.readLogs()
-    interf.readClassification()
+    while choice != 'q':
+        if choice == 'p':
+            path = input(">Provide absolute path to the image you want to classify:\n")
+            if (path != None):                
+                interf.getImageFromUser(path)
+        elif choice == 'r':
+            print("-Get results:")
+            interf.readClassification()
+        elif choice == 'l':
+            print("-Read logs:")
+            interf.readLogs()
+        elif choice == 'f':
+            print("-Check list of files to be recognized:")
+            for file in interf.listFiles(interf.images_to_recognize + "."):
+                print (file)  
+        elif choice == 'h':
+            print("*HELP*:\n\tp - path to the image to be recognized \n\tr - get result of classification\n\tl - read logs from system\n\tf - list files to be recognized\n")
+        else:
+            print(">That is not a valid input!")
+        choice = input(">What would you like to do? (q is quit, h is help)\n")
 
 if __name__ == "__main__":    
     main()

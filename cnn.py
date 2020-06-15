@@ -7,9 +7,8 @@ from keras.layers import Dense
 
 import numpy as np
 from keras.preprocessing import image
+import agent_config as ac
 
-#for testing
-import agent_config
 
 class CNN:
     num_of_instances = 0
@@ -20,6 +19,7 @@ class CNN:
         self.spe = int(dir['steps_per_epoch'])
         self.no_epochs = int(dir['epochs'])
         self.vs = int(dir['validation_steps'])
+        self.purpose = str(dir['purpose'])
 
         self.cnn_classificator_training(self.training_set_path, self.test_set_path, self.spe,
                                         self.no_epochs, self.vs)
@@ -78,7 +78,21 @@ class CNN:
         else:
             return 1
 
-# ## For testing
+def initialize_classificator(values_dict):
+    # funkcja do inicjalizacji klasyfikatora w pliku głównym programu
+    return CNN(values_dict)
+
+
+def predict_one(obj_model,img_path):
+    purpose = obj_model.purpose[:-1]
+
+    result = obj_model.predict(str(img_path))
+    if result == 1:
+        return ac.CLASSIFIED + purpose
+    else:
+        return ac.NOT_CLASSIFIED + purpose
+
+# ## For testing - do not delete
 # agent = CNN(agent_config.agent_4)
 #
 # is_animal = [agent.predict(str(agent_config.test_images['cat1'])),

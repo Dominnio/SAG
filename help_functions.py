@@ -1,9 +1,15 @@
 import agent_config as ac
 from spade.message import Message
-from spade.template import Template
 import random
 import asyncio
+import os
+import glob
+import re
+from collections import Counter
+import datetime
 
+def get_file_paths(d):
+    return glob.glob(os.path.join(d, '*'))
 
 # control, to cmb, mutliple commanders
 async def send_to_all(obj, meta_key, meta_value, msg_body):
@@ -35,7 +41,6 @@ def did_you_win(all_votes, your_vote):
         return True
     else:
         return False
-
 
 # Tutaj ktoś mógłby się zastanowić, że co jak będą 2 wyniki takie same?
 # Będzie 2 dowodzących? A więc przy 100 000 agentów prawdopodobieństwo
@@ -91,16 +96,39 @@ async def simulate_death(obj):
         while True:
             await asyncio.sleep(1000)
 
-    # if not obj.is_killed():
-    #     print("Agent {} is killed".format(obj.agent.jid))
-    #     while True:
-    #         time.sleep(100)
-    #         #print("Agent {} dying".format(obj.agent.jid))
-    #         pass
+def get_contacts_from_roster(roster):
+    # funkcja do wydobywania kontaktow ze SPAD'e w formie listy
+    contact_list = []
+    con_str = str(roster)
+    indexes = [m.start() for m in re.finditer('t=\'(.+?)\',', con_str)]
+    for x in indexes:
+       tmp = re.search('\'(.+?)\'', con_str[x:x + 20]).group(0)
+       tmp = tmp[1:-1] + '@' + ac.server_name
+       contact_list.append(tmp)
+    return contact_list
 
-# all_votes = []
-# all_votes.append(get_vote(make_vote()))
-# Trump_vote = 11
-# print(all_votes)
-# print(all_votes)
-# print(did_you_win(all_votes, Trump_vote))
+def ballot_box(classif_list,not_classif_list):
+    # funkcja pobiera głosy za, przeciw i zwraca słownik z wynikami klasyfikacji.
+    # Jesli wynik jest negatywny np. horse : -3, to znaczy ze agenci twierdza ze na obrazku nie ma konia.
+    # Wynik 0 oznacza ze glosow za i przeciw bylo tyle samo
+    # Od głosów "za" odejmowane są głosy "przeciw"
+
+    #### TO_DO ######
+    # Można by zmodyfikować tą i następną (log_results) funkcję, zeby wyświetlać trochę więcej danych na temat
+    # klasyfikacji - np. ilu agentów było za a ilu przeciw danemu głosowaniu. Kwestia zmienienia typu liczenia
+    # głosów
+
+    classif_list_counter = Counter(classif_list)
+    not_classif_list_counter = Counter(not_classif_list)
+    classif_list_counter.subtract(not_classif_list_counter)
+
+    return dict(classif_list_counter)
+
+def log_results(commander_jid,alive_agent_number,img,resoult_dict):
+    # Funkcja do zapisywania wyników. Wyniki dopisywane są na koniec pliku ac.CLASSIFICATION_RESULTS_FILE
+    f = open(ac.CLASSIFICATION_RESULTS_FILE, "a+")
+    f.write("\nClassification date: {}.\r".format(datetime.datetime.now()))
+    f.write("Commanding Agent: {}. No. Agents: {}.\r".format(commander_jid,alive_agent_number))
+    f.write("Object to recognize: {}.\r".format(img))
+    f.write("Classification results: {}.\r".format(resoult_dict))
+    f.close()

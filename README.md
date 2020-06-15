@@ -16,29 +16,33 @@ Argumenty:
 	'steps_per_epoch': '1',  
     'epochs': '1',  
     'validation_steps': '1'  
-decydująo długości trenowania klasyfikatora - ja ustawiłem bardzo małe, ze względu  
-na czas obliczeń. Klasyfikator zaczyna poprawnie klasyfikować przy ustawieniach:  
+decydują o długości trenowania klasyfikatora - domyślnei ustawione są na bardzo małe ze względu  
+na czas obliczeń. Klasyfikator poprawnie klasyfikuje przy ustawieniach:  
 	'steps_per_epoch': '8000',  
     'epochs': '25',  
     'validation_steps': '2000'  
+
 
 W pliku cnn.py znajduje się już gotowy klasyfikator.   
 W pliku classifying_agent.py znajdudje się wstępnie przygotowany model agenta.   
 W pliku agent_utilities.py znajdują się kody odpowiedzialne za komunikację.  
 W pliku help_functions.py znajdują się funkcje pomocnicze.  
-
-W pliku classifying_agent.py umieściłem w różnych miejscach znaczki #### TO_DO #### - w tych miejscach można program  
-rozwijać. Starałem wypisać tam wszystko co przychodzi mi do głowy, a co trzeba zrobić. Warto odnosić się  
-też do dokumentu google.
+Skrypt interface.py udostępnia interface użytkownikowi do komunikacji ze zrealizowanym systemem agentowym.  
 
 
-Program działa tak:
-Agenci się inicjują, i wskakują do odpowiednich stanów: stan 1 jest dla agenta dowodzącego, stan 2 dla robotników.  
-Więcej dowiecie się z pliku classifying_agent.py.
+Przed uruchomieniem projektu należy pobrać plik datasets, dostępny pod tym linkiem:  
+https://drive.google.com/file/d/1t1iet3aDXxEGsDdubEJQKupeJ_g-1f-X/view?usp=sharing
+Plik należy wypakować, a wypakowany folder datasets umieścić w katalogu głównym programu.
+
+Program należy uruchamiać następująco: najpierw uruchamia się plik classifying_agent.py - ze względu na możliwe  
+dosyć duże opóźnienia należy poczekać aż się prawidłowo zainicjuje (agenci bedą na zmianęwysyłali do siebie wiadomości).
+
+Po inicjalizacji, należy uruchomić plik interface.py - jest to samodzielny program umożliwiający przekazywanie zdjęć  
+klasyfikatorowi do rozpoznania oraz otrzymywanie wyników.
+
+Klasyfikacja moze być też inicjowana ręcznie: po inicjacji classifying_agent.py, zdjecia do klasyfikacji należy umieścić  
+w folderze data_to_recognize/recognize . Wyniki zapisywane są do pliku classification_results.txt.
 
 
-Dokument google z listą TO_DO : https://docs.google.com/document/d/1J1dj5VJ-9L6mhyIOI25qfgbYt2debQjXubj3QeXhrQ0/edit?fbclid=IwAR00acej3RGMEuV4IljcbPhuhkWYFhkz9bt_0NCmRg1dXqEsuvfvbCxQNo8  
 
-Dokument LATEX z raportem końcowym do zedytowania(jako template dałem jakiś swój stary raport): https://www.overleaf.com/7617868931cvgvmcyqsdsc  
-
-Polecam link do nauki: https://spade-mas.readthedocs.io/en/latest/usage.html
+Link do nauki SPADE: https://spade-mas.readthedocs.io/en/latest/usage.html

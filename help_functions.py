@@ -47,6 +47,7 @@ import re
 from collections import Counter
 import datetime
 
+
 def get_file_paths(d):
     return glob.glob(os.path.join(d, '*'))
 
@@ -170,4 +171,22 @@ def log_results(commander_jid,alive_agent_number,img,result):
     f.write("Votes for YES: {}.\r".format(result[0]))
     f.write("Votes for NO: {}.\r".format(result[1]))
     f.close()
+
+def print_wrapper(filename):
+    # filename is the file where output will be written - logs.txt will be used
+    def wrap(func): #print is the function that will be wrapped
+        
+        def wrapped_func(*args,**kwargs):
+            #use with statement to open, write to, and close the file safely
+            with open(filename,'a+') as outputfile:
+                line = str(datetime.datetime.now()) +": "+ args[0] + "\n"
+                outputfile.write(line,**kwargs)
+            #now original function executed with its arguments as normal
+            return func(*args,**kwargs)
+        return wrapped_func
+    return wrap
+
+
+
+
 

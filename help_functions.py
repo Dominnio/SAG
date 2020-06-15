@@ -8,8 +8,10 @@ import re
 from collections import Counter
 import datetime
 
+
 def get_file_paths(d):
     return glob.glob(os.path.join(d, '*'))
+
 
 # control, to cmb, mutliple commanders
 async def send_to_all(obj, meta_key, meta_value, msg_body):
@@ -96,6 +98,7 @@ async def simulate_death(obj):
         while True:
             await asyncio.sleep(1000)
 
+
 def get_contacts_from_roster(roster):
     # funkcja do wydobywania kontaktow ze SPAD'e w formie listy
     contact_list = []
@@ -106,6 +109,7 @@ def get_contacts_from_roster(roster):
        tmp = tmp[1:-1] + '@' + ac.server_name
        contact_list.append(tmp)
     return contact_list
+
 
 def ballot_box(classif_list,not_classif_list):
     # funkcja pobiera głosy za, przeciw i zwraca słownik z wynikami klasyfikacji.
@@ -123,6 +127,7 @@ def ballot_box(classif_list,not_classif_list):
     classif_list_counter.subtract(not_classif_list_counter)
 
     return dict(classif_list_counter)
+
 
 def log_results(commander_jid,alive_agent_number,img,resoult_dict):
     # Funkcja do zapisywania wyników. Wyniki dopisywane są na koniec pliku ac.CLASSIFICATION_RESULTS_FILE

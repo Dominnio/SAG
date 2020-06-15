@@ -72,11 +72,11 @@ class CNN:
         self.test_image = image.img_to_array(self.test_image)
         self.test_image = np.expand_dims(self.test_image, axis=0)
         self.result = self.classifier.predict(self.test_image)
-        self.training_set.class_indices
         if self.result[0][0] == 1:
             return 0
         else:
             return 1
+
 
 def initialize_classificator(values_dict):
     # funkcja do inicjalizacji klasyfikatora w pliku głównym programu

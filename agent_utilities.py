@@ -183,8 +183,6 @@ async def get_alive_agents(obj):
     return alive_agents_list
 
 
-# class StateTwo(State):
-#     async def run(self):
 async def get_commander_info(obj):
     # funkcja pobiera informacje o aktualnym agencie dowodzacym i zwraca jego jid, lub None jak nie istnieje
 
@@ -209,15 +207,14 @@ async def is_commander_alive(obj):
         # nie testowany kod - ale program skrajnie rzadko wchodzi do do tego case'a. Przetestować
         print("Agent {} cannot contact with commander".format(obj.agent.jid))
         print("Voting time! Started by Agent {}".format(obj.agent.jid))
-        voting_resoult = await hf.start_voting(obj, ac.CONTROL, ac.TO_FSM, ac.AGENT_VOTING)
-        if voting_resoult:
+        voting_result = await hf.start_voting(obj, ac.CONTROL, ac.TO_FSM, ac.AGENT_VOTING)
+        if voting_result:
             await hf.promotion_to_commanding(obj)
             obj.set_next_state(ac.STATE_ONE)
         else:
             obj.set_next_state(ac.STATE_TWO)
 
     return commander_jid
-
 
 
 async def wait_for_file_and_recognize(obj):
@@ -313,6 +310,7 @@ async def wait_for_file_and_recognize(obj):
                 else:
                     shutil.move(image_to_recognize, ac.RECOGNIZED_FOLDER)
 
+
 async def agent_task_manager(obj, commander_jid):
     # Funkcja obsługująca zachowania i odpowiedzi agentów w zależności od odebranych odpowiedzi
 
@@ -362,7 +360,7 @@ async def agent_task_manager(obj, commander_jid):
 
         if not alive_check:
             print("Voting time! Started by Agent {}".format(obj.agent.jid))
-            voting_resoult = await hf.start_voting(obj, ac.CONTROL, ac.TO_FSM, ac.AGENT_VOTING)
+            voting_result = await hf.start_voting(obj, ac.CONTROL, ac.TO_FSM, ac.AGENT_VOTING)
             # await asyncio.sleep(3)  # wait for voting result
             break
 
@@ -373,7 +371,7 @@ async def agent_task_manager(obj, commander_jid):
 
             alive_check = False
 
-    if voting_resoult:
+    if voting_result:
         await hf.promotion_to_commanding(obj)
         obj.set_next_state(ac.STATE_ONE)
     else:

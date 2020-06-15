@@ -24,6 +24,7 @@ class StateZero(State):
         await hf.simulate_death(self)
         await au.allocate_new_agent(self)
 
+
 class StateOne(State):
     async def run(self):
         print("Agent {} is in state 1.".format(self.agent.jid))
@@ -33,6 +34,7 @@ class StateOne(State):
 
         # Oczekuj na plik i rozpoznaj
         await au.wait_for_file_and_recognize(self)
+
 
 class StateTwo(State):
     async def run(self):
@@ -45,6 +47,7 @@ class StateTwo(State):
 
         # Uruchom menedżera zadań
         await au.agent_task_manager(self, commander_jid)
+
 
 class ClassifyingAgent(agent.Agent):
     class CommanderMessageBox(CyclicBehaviour):
@@ -70,6 +73,7 @@ class ClassifyingAgent(agent.Agent):
         fsm_template.set_metadata(ac.CONTROL, ac.TO_FSM)
 
         au.initialize(self, cmb_template, (fsm_template), FSMBehav, StateZero, StateOne, StateTwo)
+
 
 if __name__ == "__main__":
 

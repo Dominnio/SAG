@@ -108,27 +108,27 @@ def get_contacts_from_roster(roster):
     return contact_list
 
 def ballot_box(classif_list,not_classif_list):
-    # funkcja pobiera głosy za, przeciw i zwraca słownik z wynikami klasyfikacji.
+    # funkcja pobiera głosy za, przeciw i zwraca trzy słowniki z wynikami klasyfikacji: pozytywnej, negatywnej i zsumowany.
     # Jesli wynik jest negatywny np. horse : -3, to znaczy ze agenci twierdza ze na obrazku nie ma konia.
     # Wynik 0 oznacza ze glosow za i przeciw bylo tyle samo
     # Od głosów "za" odejmowane są głosy "przeciw"
 
-    #### TO_DO ######
-    # Można by zmodyfikować tą i następną (log_results) funkcję, zeby wyświetlać trochę więcej danych na temat
-    # klasyfikacji - np. ilu agentów było za a ilu przeciw danemu głosowaniu. Kwestia zmienienia typu liczenia
-    # głosów
-
     classif_list_counter = Counter(classif_list)
+
     not_classif_list_counter = Counter(not_classif_list)
-    classif_list_counter.subtract(not_classif_list_counter)
 
-    return dict(classif_list_counter)
+    res = classif_list_counter - not_classif_list_counter
 
-def log_results(commander_jid,alive_agent_number,img,resoult_dict):
+    return [dict(classif_list_counter), dict(not_classif_list_counter), dict(res)]
+
+def log_results(commander_jid,alive_agent_number,img,result):
     # Funkcja do zapisywania wyników. Wyniki dopisywane są na koniec pliku ac.CLASSIFICATION_RESULTS_FILE
     f = open(ac.CLASSIFICATION_RESULTS_FILE, "a+")
     f.write("\nClassification date: {}.\r".format(datetime.datetime.now()))
     f.write("Commanding Agent: {}. No. Agents: {}.\r".format(commander_jid,alive_agent_number))
     f.write("Object to recognize: {}.\r".format(img))
-    f.write("Classification results: {}.\r".format(resoult_dict))
+    f.write("Classification results: {}.\r".format(result[2]))
+    f.write("Votes for YES: {}.\r".format(result[0]))
+    f.write("Votes for NO: {}.\r".format(result[1]))
     f.close()
+

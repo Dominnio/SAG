@@ -1,7 +1,45 @@
+#===============================MOTIVATION================================
+#   This code was created for the semester project of Agent-Based Systems
+#   course (SAG_2020L) of master studies programme at the Warsaw University
+#   of Technology - Faculty of Electronics and Information Technology. 
+#
+#   Supervision and mentoring: PhD D.Ryżko
+#
+#===============================SUMMARY===================================
+#
+#   The agent system performs task of a distributed image classification.
+#   System consists of agents that are communicating asynchronously. The decision
+#   of the classifier is obtained by voting. A randomly selected commanding agent 
+#   from ordinary agents is responsible for outsourcing tasks and collecting
+#   classification results. System ensures operation even if contact with some
+#   agents is lost.
+#
+#===============================LICENSE===================================
+#
+#   This code is a free software: you can redistribute it and/or modify
+#   it under the terms of the GNU Affero General Public License as 
+#   published by the Free Software Foundation, either version 3 of the 
+#   License, or any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU Affero General Public License for more details. It can be found
+#   at <http://www.gnu.org/licenses/>.
+#
+#==========================================================================
+#   2020 Warsaw University of Technology - M.Karcz, D.Orlinski, T.Szczepanski
+#==========================================================================    
+#
+#   interface.py - allows user to get access to the data of agent system:
+#   results, logs and queue. Allows also to enter images for classification  
+#
+#==========================================================================
+
+
 import os
 import shutil 
 
-#config file names 
 class Interface:
 
     # constructor creates paths to directories used by multi-agent classifier
@@ -36,7 +74,7 @@ class Interface:
         absolute_dest_dir = os.path.join(absolute_dest_dir, os.path.basename(self.user_img_path))
 
         try:
-            shutil.copy(self.user_img_path, absolute_dest_dir) 
+            shutil.copy(self.user_img_path, absolute_dest_dir)
             print ("File copy success - file has been put in a queue") 
         except IOError:
             print("File not found or path is incorrect")

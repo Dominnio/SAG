@@ -1,2 +1,4 @@
-/.vscode
-/datasets
+.vscode
+datasets
+__pycache__
+data_to_recognize

@@ -46,7 +46,6 @@ import cnn
 import help_functions as hf
 import agent_utilities as au
 
-
 ### Finite State Machine and States
 
 class FSMBehav(FSMBehaviour):
@@ -110,9 +109,10 @@ class ClassifyingAgent(agent.Agent):
         au.initialize(self, cmb_template, (fsm_template), FSMBehav, StateZero, StateOne, StateTwo)
 
 if __name__ == "__main__":
-
+ 
     agents = []
     agent_names = ['agent_1', 'agent_2', 'agent_3']
+    print = hf.print_wrapper(ac.LOGS_FILE)(print)
 
     for name in agent_names:
         print("Initializing next agent...")

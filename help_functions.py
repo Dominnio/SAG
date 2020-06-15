@@ -1,3 +1,42 @@
+#===============================MOTIVATION================================
+#   This code was created for the semester project of Agent-Based Systems
+#   course (SAG_2020L) of master studies programme at the Warsaw University
+#   of Technology - Faculty of Electronics and Information Technology. 
+#
+#   Supervision and mentoring: PhD D.Ryżko
+#
+#===============================SUMMARY===================================
+#
+#   The agent system performs task of a distributed image classification.
+#   System consists of agents that are communicating asynchronously. The decision
+#   of the classifier is obtained by voting. A randomly selected commanding agent 
+#   from ordinary agents is responsible for outsourcing tasks and collecting
+#   classification results. System ensures operation even if contact with some
+#   agents is lost.
+#
+#===============================LICENSE===================================
+#
+#   This code is a free software: you can redistribute it and/or modify
+#   it under the terms of the GNU Affero General Public License as 
+#   published by the Free Software Foundation, either version 3 of the 
+#   License, or any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU Affero General Public License for more details. It can be found
+#   at <http://www.gnu.org/licenses/>.
+#
+#==========================================================================
+#   2020 Warsaw University of Technology - M.Karcz, D.Orlinski, T.Szczepanski
+#==========================================================================    
+#
+#   help_functions.py - used by classifying_agent.py,
+#   provides methods used by agents' behaviours - communication oriented
+#
+#==========================================================================
+
+
 import agent_config as ac
 from spade.message import Message
 import random
